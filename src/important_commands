@@ -3,3 +3,9 @@ uvicorn api:app --host 0.0.0.0 --port 3031 --reload
 
 # Verificar que se está corriendo en un puerto
 sudo lsof -i:3031
+
+# Comando para incrementar el número de conexiones en el sistema operativo
+ulimit 65536
+
+# Comando para correr la prueba de estres con wrk
+wrk -t10 -c50000 -d45s -s post_request.lua http://localhost:3031/predict
