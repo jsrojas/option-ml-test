@@ -8,9 +8,11 @@ Author: Juan Sebastian Rojas Melendez
 """
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
+import joblib
 import os
 from pydantic import BaseModel
-from utils.utils import load_model, process_data
+from utils.utils import process_data
+import asyncio
 
 # Loading environment variables
 if os.path.exists('.env'):
@@ -24,6 +26,24 @@ PATH_TO_ENCODER = os.getenv('PATH_TO_ENCODER')
 # Creating the API
 app = FastAPI()
 
+# Declaring global variables for the model and encoder
+model = None
+encoder = None
+
+# load the ML model and binary encoder during startup
+@app.on_event("startup")
+def load_model_and_encoder():
+    global model
+    global encoder
+    try:
+        # Load the ML model
+        model = joblib.load(PATH_TO_MODEL)
+        # Load the binary encoder
+        encoder = joblib.load(PATH_TO_ENCODER)
+    # If any of the joblib files could not be found
+    except FileNotFoundError:
+        raise FileNotFoundError(f'The model file or the encoder file could not be found in the provided paths: {PATH_TO_MODEL, PATH_TO_ENCODER}')
+
 # Defining the input data format
 class InputData(BaseModel):
     opera: str
@@ -32,14 +52,13 @@ class InputData(BaseModel):
     sigla_des: str
     dia_nom: str
 
-
 # Defining the prediction format
 class Prediction(BaseModel):
     prediction: float
 
 # Defining the prediction endpoint
 @app.post("/predict", response_model=Prediction)
-def predict(request: InputData):
+async def predict(request: InputData):
     """
     This function is an endpoint that takes an input data request of a flight, 
     loads a classification model, processes the data to obtain an encoded dataframe 
@@ -59,14 +78,15 @@ def predict(request: InputData):
         # Raise an exception with code 412
         raise HTTPException(status_code=412, detail='the http request is empty or has missing data. Please review your request body')
     
-    # Load the classification model
-    classification_model = load_model(PATH_TO_MODEL)
+    # Load the classification model asynchronously
+    loop = asyncio.get_event_loop()
+    #classification_model = await loop.run_in_executor(None, load_model, PATH_TO_MODEL)
     
-    # Process the data to obtain the encoded df
-    df_encoded = process_data(request, PATH_TO_ENCODER)
+    # Process the data to obtain the encoded df asynchronously
+    df_encoded = await loop.run_in_executor(None, process_data, request, encoder)
 
-    # Obtain the prediction from the model
-    result = classification_model.predict(df_encoded)
+    # Obtain the prediction from the model asynchronously
+    result = await loop.run_in_executor(None, model.predict, df_encoded)
     
     # Create the Prediction object for the response
     response = Prediction(prediction=result)
