@@ -1,0 +1,5 @@
+# Comando para correr la API en local recargando cambios en el código
+uvicorn api:app --host 0.0.0.0 --port 3031 --reload
+
+# Verificar que se está corriendo en un puerto
+sudo lsof -i:3031
