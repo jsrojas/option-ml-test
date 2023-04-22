@@ -78,6 +78,22 @@ Before running that command it may necessary to increase the number of open file
 
 </div>
 
+### Results with 1000 connections for 45 seconds
+![image](https://user-images.githubusercontent.com/4323981/233805975-c3a69e0b-f349-41d4-9768-57887e2e2111.png)
 
+### Results with 10000 connections for 45 seconds
+![image](https://user-images.githubusercontent.com/4323981/233806007-e2348bc5-2aa9-4a61-9317-5288b22934e1.png)
+
+### Results with 15000 connections for 45 seconds
+![image](https://user-images.githubusercontent.com/4323981/233806242-3350f032-d3ee-4ae7-95b7-8c2bad8876be.png)
+
+
+
+
+## Possible improvements for the API
+
+- **Use a production-ready web server:** FastAPI uses the **Uvicorn server** by default, which is suitable for development purposes, but may not be the best choice for production use with high loads. Using a production-ready web server such as [Gunicorn](https://gunicorn.org) or [Hypercorn](https://pgjones.gitlab.io/hypercorn/) could enable the API to handle a large number of concurrent requests efficiently.
+- **Load balancing:** In case the API is anticipating a high number of concurrent requests, using load balancing techniques such as distributing the incoming requests across multiple instances of the FastAPI application running on different servers could help distribute the load and prevent any single instance from becoming a bottleneck.
+- **Implementing a new endpoint to retrain the model:** Since the performance of the model could deteriorate over time, it is important to have an option that retrains the model with updated data and stores it in the joblib for it to be reused when needed.
 
 
