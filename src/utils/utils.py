@@ -1,7 +1,13 @@
+"""
+This script holds all the needed functions that enables
+the API to load the classification model and process and
+encode the data.
+
+Author: Juan Sebastian Rojas Melendez
+"""
+
 import joblib
 import pandas as pd
-import category_encoders as ce
-from sklearn.pipeline import Pipeline
 
 def load_model(path_to_model:str):
     """
@@ -21,28 +27,76 @@ def load_model(path_to_model:str):
         classification_model = joblib.load(path_to_model)
         
         return classification_model
+    
     except FileNotFoundError:
         raise FileNotFoundError(f'The model file could not be found in the provided path: {path_to_model}')
     
 def convert_to_df(request):
-    # Create the dataframe
+    """
+    This function converts a request object into a pandas DataFrame.
+    
+    Args:
+      request: This is data in JSON format in a specific that comes from
+      a HTTP POST request.
+
+    Returns:
+      a pandas DataFrame.
+    """
+    # Converting the request into a dictionary
     data = request.dict()
-    df = pd.DataFrame(data)
+
+    # Creating a pandas DF from that dictionary
+    df = pd.DataFrame(data, index=[0])
     
     return df
 
-def encode_data(df):
-    # Load the encoder from the training
-    encoder = ce.BinaryEncoder()
+def encode_data(df, path_to_encoder):
+    """
+    The function encodes a given dataframe using a pre-trained 
+    encoder and returns the encoded dataframe.
+    
+    Args:
+      df: A pandas dataframe containing the data to be encoded.
+      path_to_encoder: The path to the file where the encoder object 
+      is saved. This file should have been created during the training process 
+      and contains the trained encoder object.
+    
+    Returns:
+      the encoded dataframe after applying binary encoding to it.
+    """
+    # Load the encoder from the training process
+    encoder = joblib.load(path_to_encoder)
 
-    # Apply binary encoding to the dataframe
+    # Converting column names to uppercase as the encoder expects
+    df.columns = df.columns.str.upper()
+
+    # Removing underscores from column names
+    df.columns = df.columns.str.replace('_', '')
+
+    # Applying binary encoding to the dataframe
     df_encoded = encoder.transform(df)
 
     return df_encoded
 
-def process_data(request):
+def process_data(request, path_to_encoder):
+    """
+    The function processes data by converting a request into a 
+    pandas dataframe and encoding it using a binary encoder.
+    
+    Args:
+      request: The input data that needs to be processed and encoded.
+      path_to_encoder: The path to the file containing the trained 
+      encoder model that will be used to encode the data.
+    
+    Returns:
+      the encoded pandas dataframe obtained by processing the input request 
+      using the specified path to the encoder.
+    """
+    # Sending the request to be transformed into
+    # a pandas dataframe
     df = convert_to_df(request)
-    df_encoded = encode_data(df)
+    # Encoding the data with the Binary Encoder
+    df_encoded = encode_data(df, path_to_encoder)
 
     return df_encoded
 
