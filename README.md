@@ -87,8 +87,8 @@ Before running that command it may necessary to increase the number of open file
 ### Results with 15000 connections for 45 seconds
 ![image](https://user-images.githubusercontent.com/4323981/233806242-3350f032-d3ee-4ae7-95b7-8c2bad8876be.png)
 
-
-
+### Results with 50000 connections for 45 seconds
+![image](https://user-images.githubusercontent.com/4323981/233807836-55fd1b76-69dd-4fec-852c-99c608ee273f.png)
 
 ## Possible improvements for the API
 
