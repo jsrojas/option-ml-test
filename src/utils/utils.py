@@ -8,28 +8,6 @@ Author: Juan Sebastian Rojas Melendez
 
 import joblib
 import pandas as pd
-
-def load_model(path_to_model:str):
-    """
-    The function loads a saved joblib model from a specified path and returns it, or raises a
-    FileNotFoundError if the file is not found.
-    
-    Args:
-      path_to_model (str): The path to the saved joblib model file that needs to be loaded.
-    
-    Returns:
-      The function `load_model` returns the loaded joblib model if the file exists in the provided path,
-    otherwise it raises a `FileNotFoundError` with a message indicating that the file could not be found
-    in the provided path.
-    """
-    try:
-        # Load the saved joblib model
-        classification_model = joblib.load(path_to_model)
-        
-        return classification_model
-    
-    except FileNotFoundError:
-        raise FileNotFoundError(f'The model file could not be found in the provided path: {path_to_model}')
     
 def convert_to_df(request):
     """
@@ -50,35 +28,32 @@ def convert_to_df(request):
     
     return df
 
-def encode_data(df, path_to_encoder):
-    """
-    The function encodes a given dataframe using a pre-trained 
-    encoder and returns the encoded dataframe.
-    
-    Args:
-      df: A pandas dataframe containing the data to be encoded.
-      path_to_encoder: The path to the file where the encoder object 
-      is saved. This file should have been created during the training process 
-      and contains the trained encoder object.
-    
-    Returns:
-      the encoded dataframe after applying binary encoding to it.
-    """
-    # Load the encoder from the training process
-    encoder = joblib.load(path_to_encoder)
+def encode_data(df, encoder):
+  """
+  The function encodes a given dataframe using a specified encoder and converting column names to
+  uppercase and removing underscores from column names.
 
+  Args:
+    df: The input dataframe that needs to be encoded.
+    encoder: The "encoder" parameter is an instance of a binary encoder object that has been
+  previously initialized with specific encoding parameters. This object is used to transform the input
+  dataframe into a binary encoded format.
+
+  Returns:
+    the encoded dataframe after applying binary encoding to it.
+  """
     # Converting column names to uppercase as the encoder expects
-    df.columns = df.columns.str.upper()
+  df.columns = df.columns.str.upper()
 
-    # Removing underscores from column names
-    df.columns = df.columns.str.replace('_', '')
+  # Removing underscores from column names
+  df.columns = df.columns.str.replace('_', '')
 
-    # Applying binary encoding to the dataframe
-    df_encoded = encoder.transform(df)
+  # Applying binary encoding to the dataframe
+  df_encoded = encoder.transform(df)
 
-    return df_encoded
+  return df_encoded
 
-def process_data(request, path_to_encoder):
+def process_data(request, encoder):
     """
     The function processes data by converting a request into a 
     pandas dataframe and encoding it using a binary encoder.
@@ -96,7 +71,7 @@ def process_data(request, path_to_encoder):
     # a pandas dataframe
     df = convert_to_df(request)
     # Encoding the data with the Binary Encoder
-    df_encoded = encode_data(df, path_to_encoder)
+    df_encoded = encode_data(df, encoder)
 
     return df_encoded
 
