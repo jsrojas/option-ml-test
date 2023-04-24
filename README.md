@@ -62,7 +62,7 @@ Then, to start the server with uvicorn the following command should be executed 
 
 It is not mandatory for the port number to be 3031, it can be any other. Also, within the `src` folder the file `important_commands.txt` holds some useful commands.
 
-If you want to run it on Guvicorn the command is the following (in the same terminal):
+If you want to run it on Gunicorn the command is the following (in the same terminal):
 <div align="center">
 
 `gunicorn api:app --bind=0.0.0.0:3031 --workers=4 --worker-class=uvicorn.workers.UvicornWorker --timeout 60`
@@ -73,7 +73,7 @@ Once the API is up and running in the local environment with uvicorn, it should 
 
 ![image](https://user-images.githubusercontent.com/4323981/233800568-d4e57f72-13fd-421a-9b46-65a6378c86b9.png)
 
-With Guvicorn it should look something like this:
+With Gunicorn it should look something like this:
 
 ![image](https://user-images.githubusercontent.com/4323981/234121975-08a91aa9-2383-4be2-ba62-29dc3fa2b1b5.png)
 
