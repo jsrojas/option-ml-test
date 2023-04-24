@@ -77,7 +77,7 @@ With Guvicorn it should look something like this:
 
 ![image](https://user-images.githubusercontent.com/4323981/234121975-08a91aa9-2383-4be2-ba62-29dc3fa2b1b5.png)
 
-When the API is working it is possible to send HTTP POST requests with any testing tool such as [Postmant](https://www.postman.com) or any other similar tool. The format should be the one presented at the beginning of this readme file and the endpoint URL is:
+When the API is working it is possible to send HTTP POST requests with any testing tool such as [Postman](https://www.postman.com) or any other similar tool. The format should be the one presented at the beginning of this readme file and the endpoint URL is:
 
 <div align="center">
 
