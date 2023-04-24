@@ -7,12 +7,10 @@ delays or not in a binary format (0 not delay - 1 delay)
 Author: Juan Sebastian Rojas Melendez
 """
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import JSONResponse
 import joblib
 import os
 from pydantic import BaseModel
 from utils.utils import process_data
-import asyncio
 
 # Loading environment variables
 if os.path.exists('.env'):
@@ -78,15 +76,11 @@ async def predict(request: InputData):
         # Raise an exception with code 412
         raise HTTPException(status_code=412, detail='the http request is empty or has missing data. Please review your request body')
     
-    # Load the classification model asynchronously
-    loop = asyncio.get_event_loop()
-    #classification_model = await loop.run_in_executor(None, load_model, PATH_TO_MODEL)
+    # Process the data to obtain the encoded df
+    df_encoded = process_data(request, encoder)
     
-    # Process the data to obtain the encoded df asynchronously
-    df_encoded = await loop.run_in_executor(None, process_data, request, encoder)
-
-    # Obtain the prediction from the model asynchronously
-    result = await loop.run_in_executor(None, model.predict, df_encoded)
+    # Obtain the prediction from the model
+    result = model.predict(df_encoded)
     
     # Create the Prediction object for the response
     response = Prediction(prediction=result)
