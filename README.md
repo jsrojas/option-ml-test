@@ -2,6 +2,8 @@
 
 This repository has the code to start an API that consumes an XGBoost classification model that is capable of determining if a flight will be delayed or not. The model returns 1 if the flight will be delayed and 0 if the model will not be delayed.
 
+**Important note: The answers for points 1 and 2 can be found in the notebook `ml_test_points_1_and_2.ipynb` within the folder `src/notebooks/`.**
+
 The data format that has to be sent to the API in order to obtain a response, in JSON format, is the following:
 ```
 {
@@ -40,7 +42,17 @@ Once the virtual environment is set up, the required libraries can be installed 
 
 ## Start the API in Local environment
 
-After having all the requirements installed, in order to start the API in a local environment the following command must be executed while being inside the `src` folder where the `api.py` file is:
+After having all the requirements installed, in order to start the API in a local environment the following commands must be executed while being inside the `src` folder where the `api.py` file is:
+
+First it is necessary to increase the amount of open files the OS can handle since Uvicorn and Gunicorn cannot won't be able to handle a lot of request due to a conflict with Ubuntu. The command to run is the following:
+<div align="center">
+
+`ulimit -n 100000`
+</div>
+
+Where, the number after the `n` is the amount of files that the system is allowed to open at the same time.
+
+Then, to start the server with uvicorn the following command should be executed in the same terminal as the previous command.
 
 <div align="center">
 
@@ -50,9 +62,20 @@ After having all the requirements installed, in order to start the API in a loca
 
 It is not mandatory for the port number to be 3031, it can be any other. Also, within the `src` folder the file `important_commands.txt` holds some useful commands.
 
-Once the API is up and running in the local environment, it should look like this:
+If you want to run it on Guvicorn the command is the following (in the same terminal):
+<div align="center">
+
+`gunicorn api:app --bind=0.0.0.0:3031 --workers=4 --worker-class=uvicorn.workers.UvicornWorker --timeout 60`
+
+</div>
+
+Once the API is up and running in the local environment with uvicorn, it should look like this:
 
 ![image](https://user-images.githubusercontent.com/4323981/233800568-d4e57f72-13fd-421a-9b46-65a6378c86b9.png)
+
+With Guvicorn it should look something like this:
+
+![image](https://user-images.githubusercontent.com/4323981/234121975-08a91aa9-2383-4be2-ba62-29dc3fa2b1b5.png)
 
 When the API is working it is possible to send HTTP POST requests with any testing tool such as [Postmant](https://www.postman.com) or any other similar tool. The format should be the one presented at the beginning of this readme file and the endpoint URL is:
 
@@ -67,33 +90,22 @@ When the API is working it is possible to send HTTP POST requests with any testi
 The command to execute the stress test as required is the following:
 <div align="center">
 
-`wrk -t10 -c50000 -d45s -s post_request.lua http://localhost:3031/predict`
+`wrk -t10 -c5000 -d45s -s post_request.lua http://localhost:3031/predict`
 
 </div>
 
-Before running that command it may necessary to increase the number of open files in the OS with the following command:
-<div align="center">
+### Results with 100 connections and 10 threads for 45 seconds (1000 requests)
+![image](https://user-images.githubusercontent.com/4323981/234122740-d70b59be-93f0-42c8-a469-e98ba568ff8f.png)
 
-`ulimit 65536`
+### Results with 1000 connections and 10 threads for 45 seconds (10000 requests)
+![image](https://user-images.githubusercontent.com/4323981/234123363-2bce6b82-4784-4e73-857c-41417a31bb05.png)
 
-</div>
-
-### Results with 1000 connections for 45 seconds
-![image](https://user-images.githubusercontent.com/4323981/233805975-c3a69e0b-f349-41d4-9768-57887e2e2111.png)
-
-### Results with 10000 connections for 45 seconds
-![image](https://user-images.githubusercontent.com/4323981/233806007-e2348bc5-2aa9-4a61-9317-5288b22934e1.png)
-
-### Results with 15000 connections for 45 seconds
-![image](https://user-images.githubusercontent.com/4323981/233806242-3350f032-d3ee-4ae7-95b7-8c2bad8876be.png)
-
-### Results with 50000 connections for 45 seconds
-![image](https://user-images.githubusercontent.com/4323981/233807836-55fd1b76-69dd-4fec-852c-99c608ee273f.png)
+### Results with 5000 connections and 10 threads for 45 seconds (50000 requests)
+![image](https://user-images.githubusercontent.com/4323981/234124100-27a00db7-2e0f-4e16-81f3-d49797844d49.png)
 
 ## Possible improvements for the API
 
 - **Use a production-ready web server:** FastAPI uses the **Uvicorn server** by default, which is suitable for development purposes, but may not be the best choice for production use with high loads. Using a production-ready web server such as [Gunicorn](https://gunicorn.org) or [Hypercorn](https://pgjones.gitlab.io/hypercorn/) could enable the API to handle a large number of concurrent requests efficiently.
 - **Load balancing:** In case the API is anticipating a high number of concurrent requests, using load balancing techniques such as distributing the incoming requests across multiple instances of the FastAPI application running on different servers could help distribute the load and prevent any single instance from becoming a bottleneck.
 - **Implementing a new endpoint to retrain the model:** Since the performance of the model could deteriorate over time, it is important to have an option that retrains the model with updated data and stores it in the joblib for it to be reused when needed.
-
-
+- **Persistency of model files:** To ensure a fast and consistent communication of the API with the external files it needs to perform the predictions it would be necessary to store the joblib files in a cloud service such as Cloud Storage so it can be secure and accessible after each retraining process.
