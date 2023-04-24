@@ -9,3 +9,6 @@ ulimit 65536
 
 # Comando para correr la prueba de estres con wrk
 wrk -t10 -c50000 -d45s -s post_request.lua http://localhost:3031/predict
+
+# Comando para correr el servidor en local con Gunicorn
+gunicorn api:app --bind=0.0.0.0:3031 --workers=4 --worker-class=uvicorn.workers.UvicornWorker --timeout 60
