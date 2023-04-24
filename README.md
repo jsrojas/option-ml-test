@@ -2,7 +2,7 @@
 
 This repository has the code to start an API that consumes an XGBoost classification model that is capable of determining if a flight will be delayed or not. The model returns 1 if the flight will be delayed and 0 if the model will not be delayed.
 
-**Important note: The answers for points 1 and 2 can be found in the notebook `ml_test_points_1_and_2.ipynb` within the folder `src/notebooks/`.**
+**Important note: The answers for points 1 and 2 can be found in the notebook `ml_test_points_1_and_2.ipynb` within the folder `src/notebooks/`. Stress test on the API can be found at the end of this README**
 
 The data format that has to be sent to the API in order to obtain a response, in JSON format, is the following:
 ```
@@ -82,6 +82,22 @@ When the API is working it is possible to send HTTP POST requests with any testi
 <div align="center">
 
 `http://localhost:3031/predict`
+
+</div>
+
+## Start the API in a Docker container within a local environment
+
+To build the image open a terminal, enter the root folder and run the following command:
+<div align="center">
+
+`docker build . -t option_test:latest`
+
+</div>
+
+To start the container based on the previous built image run the following command:
+<div align="center">
+
+`docker run --rm -p 3031:3031 option_test:latest`
 
 </div>
 
