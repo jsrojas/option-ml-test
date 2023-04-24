@@ -10,7 +10,10 @@ from fastapi import FastAPI, HTTPException
 import joblib
 import os
 from pydantic import BaseModel
-from utils.utils import process_data
+try:
+    from utils.utils import process_data
+except ModuleNotFoundError:
+    from src.utils.utils import process_data
 
 # Loading environment variables
 if os.path.exists('.env'):
